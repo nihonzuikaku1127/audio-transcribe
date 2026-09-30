@@ -28,8 +28,13 @@ class AudioDecoder(private val ctx: Context, private val uri: Uri) {
     /**
      * ファイルを最初から最後までデコードする。
      * 変換できた音声が少したまるたびに onPcm が呼ばれる。
+     * progress は「ファイル全体のうち、どこまで進んだか」（0.0〜1.0）。長さがわからないときは -1。
+     * isCancelled が true を返したら、途中でやめて CancelledException を投げる。
      */
-    fun decode(onPcm: (samples: ShortArray, count: Int) -> Unit) {
+    fun decode(
+        isCancelled: () -> Boolean,
+        onPcm: (samples: ShortArray, count: Int, progress: Float) -> Unit
+    ) {
         val extractor = MediaExtractor()
         extractor.setDataSource(ctx, uri, null)
 
@@ -43,6 +48,9 @@ class AudioDecoder(private val ctx: Context, private val uri: Uri) {
         extractor.selectTrack(trackIndex)
         val inputFormat = extractor.getTrackFormat(trackIndex)
         val mime = inputFormat.getString(MediaFormat.KEY_MIME)!!
+        // ファイルの長さ（マイクロ秒 = 100万分の1秒）。進捗の％を計算するのに使う
+        val durationUs =
+            if (inputFormat.containsKey(MediaFormat.KEY_DURATION)) inputFormat.getLong(MediaFormat.KEY_DURATION) else -1L
 
         val codec = MediaCodec.createDecoderByType(mime)
         codec.configure(inputFormat, null, null, 0)
@@ -58,6 +66,8 @@ class AudioDecoder(private val ctx: Context, private val uri: Uri) {
         var outputDone = false
         try {
             while (!outputDone) {
+                if (isCancelled()) throw CancelledException()
+
                 // ① ファイルから圧縮データを読んで、デコーダーに渡す
                 if (!inputDone) {
                     val inIndex = codec.dequeueInputBuffer(TIMEOUT_US)
@@ -95,7 +105,9 @@ class AudioDecoder(private val ctx: Context, private val uri: Uri) {
                             buf.order(ByteOrder.nativeOrder())
                             val mono = toMono(buf, channels, isFloat)
                             val out = resampler.process(mono)
-                            if (out.isNotEmpty()) onPcm(out, out.size)
+                            val progress =
+                                if (durationUs > 0) (info.presentationTimeUs.toFloat() / durationUs).coerceIn(0f, 1f) else -1f
+                            if (out.isNotEmpty()) onPcm(out, out.size, progress)
                         }
                         codec.releaseOutputBuffer(outIndex, false)
                         if (info.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) outputDone = true
@@ -160,3 +172,6 @@ class AudioDecoder(private val ctx: Context, private val uri: Uri) {
         }
     }
 }
+
+/** ユーザーがキャンセルボタンを押したときに投げる */
+class CancelledException : Exception("キャンセルしました")

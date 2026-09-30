@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- 初回にモデルをダウンロードするときだけ使う -->
+    <!-- モデルのダウンロードと広告の表示に使う（音声は外に送らない） -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- アプリを閉じても処理を続けるため -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- 終わったことを通知で知らせるため -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="false"
@@ -10,15 +16,24 @@
         android:label="文字起こし翻訳"
         android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
 
-        <!-- configChanges: 画面を回転しても処理が止まらないようにする -->
+        <!-- AdMob のアプリID（今はGoogleのテスト用ID。公開時に自分のIDへ変える） -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713" />
+
         <activity
             android:name=".MainActivity"
-            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".TranscribeService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
     </application>
 </manifest>

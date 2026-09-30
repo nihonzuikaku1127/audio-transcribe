@@ -16,7 +16,11 @@ object ModelManager {
     private val MODELS = mapOf(
         "en" to "vosk-model-small-en-us-0.15",
         "ja" to "vosk-model-small-ja-0.22",
-        "zh" to "vosk-model-small-cn-0.22"
+        "zh" to "vosk-model-small-cn-0.22",
+        "ko" to "vosk-model-small-ko-0.22",
+        "es" to "vosk-model-small-es-0.42",
+        "fr" to "vosk-model-small-fr-0.22",
+        "de" to "vosk-model-small-de-0.15"
     )
 
     fun ensureModel(ctx: Context, lang: String, progress: (String) -> Unit): File {

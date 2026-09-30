@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      AdMob の広告ユニットID。
+      今は Google が用意している「テスト用」のIDを使っている（本物の広告は出ない・収益も出ない）。
+      公開するときは、自分の AdMob アカウントで作ったIDに書きかえる。
+      アプリIDは AndroidManifest.xml の APPLICATION_ID にある。
+    -->
+    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+</resources>
