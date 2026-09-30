@@ -27,9 +27,3 @@ jobs:
           name: audio-transcribe-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
 
-      - name: Check Vosk model URLs (temporary)
-        if: always()
-        run: |
-          for m in en-us-0.15 ja-0.22 cn-0.22 ko-0.22 es-0.42 fr-0.22 de-0.15; do
-            echo "$m $(curl -sIL -o /dev/null -w '%{http_code}' https://alphacephei.com/vosk/models/vosk-model-small-$m.zip)"
-          done
