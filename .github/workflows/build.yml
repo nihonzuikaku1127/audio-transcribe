@@ -1,7 +1,16 @@
 name: Build APK
 
+# Android版のファイルが変わったときだけビルドする（web フォルダだけの変更では動かない）
 on:
   push:
+    paths:
+      - 'app/**'
+      - 'gradle/**'
+      - '*.gradle'
+      - 'gradle.properties'
+      - 'gradlew'
+      - 'gradlew.bat'
+      - '.github/workflows/build.yml'
   workflow_dispatch:
 
 jobs:
