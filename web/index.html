@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>文字起こし翻訳</title>
+  <meta name="description" content="音声・動画ファイルをブラウザの中だけで文字起こし・翻訳する無料のウェブアプリ。音声は外部に送りません。">
+  <meta name="theme-color" content="#1565c0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎙️</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="header">
+    <h1>文字起こし翻訳</h1>
+    <p class="lead">音声・動画ファイルを、このブラウザの中だけで文字起こし・翻訳します。音声は外部に送りません。</p>
+  </header>
+
+  <main class="main">
+    <section class="card" id="setup">
+      <label class="drop" id="drop">
+        <input type="file" id="file" accept="audio/*,video/*,.mp3,.m4a,.wav,.mp4,.mov,.webm,.ogg,.aac,.flac">
+        <span class="drop-icon" aria-hidden="true">📁</span>
+        <span class="drop-text" id="fileLabel">ここをタップしてファイルを選ぶ<br><small>（またはファイルをドラッグ）mp3, m4a, wav, mp4 など</small></span>
+      </label>
+
+      <div class="row">
+        <label class="field">
+          <span>元の言語</span>
+          <select id="srcLang"></select>
+        </label>
+        <label class="field">
+          <span>翻訳先</span>
+          <select id="dstLang"></select>
+        </label>
+      </div>
+
+      <label class="field">
+        <span>精度</span>
+        <select id="model">
+          <option value="onnx-community/whisper-tiny">速さ重視（モデル 約50MB）</option>
+          <option value="onnx-community/whisper-base" selected>標準（モデル 約100MB）</option>
+          <option value="onnx-community/whisper-small">精度重視（モデル 約300MB・時間がかかります）</option>
+        </select>
+      </label>
+
+      <div class="buttons">
+        <button id="start" class="primary" disabled>文字起こしを始める</button>
+        <button id="cancel" class="danger" hidden>キャンセル</button>
+      </div>
+    </section>
+
+    <section class="card" id="progressCard" hidden>
+      <div class="status-row">
+        <span id="status">準備中…</span>
+        <span id="percent"></span>
+      </div>
+      <div class="bar"><div class="bar-fill" id="barFill"></div></div>
+      <p class="hint" id="hint">処理が終わるまで、このページを開いたままにしてください。</p>
+    </section>
+
+    <section class="card" id="resultCard" hidden>
+      <div class="result-head">
+        <h2>結果</h2>
+        <div class="actions">
+          <button id="copy">コピー</button>
+          <button id="share">共有</button>
+          <button id="save">保存</button>
+        </div>
+      </div>
+      <div id="result" class="result" aria-live="polite"></div>
+    </section>
+
+    <details class="card about">
+      <summary>このアプリについて</summary>
+      <ul>
+        <li>文字起こしには OpenAI の Whisper、翻訳には Meta の NLLB（Chrome などでブラウザ内蔵の翻訳機能が使える場合はそちら）を使い、すべてこのブラウザの中で処理します。</li>
+        <li>モデルは初回だけダウンロードしてブラウザに保存し、2回目からは再利用します。翻訳モデルは約1GBあるため、初回はWi-Fiでの利用をおすすめします。</li>
+        <li>パソコンのほうが速く処理できます。長い動画はメモリを多く使うため、スマホでは数十分程度までを目安にしてください。</li>
+        <li>完全無料です。</li>
+      </ul>
+      <p class="storage">
+        <span id="storageInfo"></span>
+        <button id="clearCache" class="small">保存したモデルを削除</button>
+      </p>
+    </details>
+  </main>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
